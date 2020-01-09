@@ -1,0 +1,220 @@
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Scanner;
+
+class HuffmanDecompressor { 
+  
+  private Node<Integer> root; // set to public to test
+  
+  // --------------------------------------------------------------------------------------------------------
+  
+  
+  HuffmanDecompressor() {
+    decode();
+  }
+  
+  // --------------------------------------------------------------------------------------------------------
+  
+  private void decode(){
+    
+    Scanner input = new Scanner (System.in);
+    System.out.print("Please enter the name of the file to be decoded: ");
+    String originalFile = input.nextLine();
+    
+    try {          
+      
+      BufferedInputStream in = new BufferedInputStream(new FileInputStream(originalFile));
+      BufferedOutputStream out;
+      int c;
+      String newFileName = "";
+      String huffmanTreeArrangement = "";
+      int ignoreBits = 0;
+      
+      while ((c = in.read()) != 13) {
+        newFileName = newFileName + (char)c;
+      }              
+      out = new BufferedOutputStream(new FileOutputStream(newFileName.toLowerCase()));
+      
+      while ((c = in.read()) != 13) {
+        huffmanTreeArrangement += (char)c;
+      }
+      char[] arrangementCharArray = huffmanTreeArrangement.toCharArray(); 
+      
+      while ((c = in.read()) != 13) {
+        ignoreBits = Character.getNumericValue((char)c);
+      }      
+      
+      constructTree(arrangementCharArray);
+      
+      int next = in.read();
+      //nodeCheck is the node I either check for leaf or traverse through
+      Node<Integer> nodeCheck = root;
+      //c just has to be next because next will update at the beginning of each loop through
+      c = next;
+      //If c is the last integer, length = 8(bits) - ignore
+      int forLoopLength;
+      while (c != -1) {
+        next = in.read();
+        if (next != -1) {
+          forLoopLength = 8;
+        } else {
+          forLoopLength = 8-ignoreBits;
+        }
+        for (int i=0; i<forLoopLength; i++) {
+          if ((c&128) != 128) {
+            //If the first bit of c is a 0
+            nodeCheck = nodeCheck.getLeft();
+          } else {
+            //If it's not a 0, then it has to be a 1
+            nodeCheck = nodeCheck.getRight();
+          }
+          if (nodeCheck.isLeaf()) {
+            //Writes to output if the node is a leaf and then resets the node to the root to traverse again
+            out.write(nodeCheck.getItem());
+            nodeCheck = root;
+          }
+          //Bit shift left
+          c = c<<1;
+        }
+        //c is now the next integer
+        c = next;
+      }
+      
+      in.close();
+      out.close();
+      
+    } catch (IOException e) {
+      e.printStackTrace();      
+    }
+  }  
+  
+  // --------------------------------------------------------------------------------------------------------
+
+  private boolean isClosedBracket(char c) { 
+    if (c == ')') { 
+      return true; 
+    } 
+    return false; 
+  } 
+  
+  // set to public to test
+  private void constructTree(char arrangement[]) { 
+    Stack<Node<Integer>> stack = new Stack<>(); 
+    Node<Integer> tempNode, child1, child2; 
+    
+    String nodeValue = "";
+    
+    // Traverse through every character of 
+    // input expression 
+    for (int i = 0; i < arrangement.length; i++) { 
+      
+      // If operand, simply push into stack 
+      if (!isClosedBracket(arrangement[i])) {
+        if (arrangement[i]=='('){
+          //System.out.println ("(hello" + i);
+          continue;
+        } else if (arrangement[i]==' '){
+          //System.out.println (" hello" + i);
+          continue;
+        }
+        
+        nodeValue += arrangement[i];
+        
+        if (arrangement[i+1]==' ' || arrangement[i+1]=='(' || arrangement[i+1]==')') {
+          //System.out.println (i);
+          try {
+          stack.push(new Node<>(Integer.parseInt(nodeValue)));
+          } catch (NumberFormatException e) {
+            //System.out.println(e.getMessage());
+          }
+          nodeValue = "";
+        } else {
+          //System.out.println ("( )hello" + i);
+          continue;
+        }
+        
+      } else { // if operator
+        //root = new Node<>(null, null, null); 
+        
+        // Pop two top nodes 
+        // Store top 
+        tempNode = new Node<>(null, null, null);
+        child1 = stack.pop();      // Remove top 
+        child2 = stack.pop(); 
+        
+        
+        //  make them children 
+        tempNode.setRight(child1); 
+        tempNode.setLeft(child2); 
+        
+        // System.out.println(child1 + "" + child2); 
+        // Add this subexpression to stack 
+        stack.push(tempNode); 
+      } 
+    } 
+    
+    //  only element will be root of expression 
+    // tree 
+    root = stack.pop(); 
+    
+    //return root;
+  } 
+  
+  // --------------------------------------------------------------------------------------------------------
+  
+  // set to public to test
+  private class Node <T> { 
+    private T item;
+    private Node<T> left;
+    private Node<T> right;
+    
+    public Node(T item) {
+      this.item=item;
+      this.left=null;
+      this.right=null;
+    }
+    
+    public Node(T item, Node<T> left, Node<T> right) {
+      this.item=item;
+      this.left=left;
+      this.right=right;
+    }
+    
+    public Node<T> getRight(){
+      return this.right;
+    }
+    
+    public Node<T> getLeft(){
+      return this.left;
+    }
+    
+    public void setRight(Node<T> right){
+      this.right = right;
+    }
+    
+    public void setLeft(Node<T> left){
+      this.left = left;
+    }
+    
+    public T getItem(){
+      return this.item;
+    }
+    
+    public void setItem(T item){
+      this.item=item;
+    }
+    
+    public boolean isLeaf() {
+      if (this.left==null && this.right==null){
+        return true;
+      }
+      
+      return false;
+    }
+    
+  }
+  
+}

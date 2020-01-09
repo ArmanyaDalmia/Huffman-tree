@@ -1,0 +1,19 @@
+public class HuffmanDecompressionTest {
+  public static void main (String [] args) {
+    
+    HuffmanDecompressor hd = new HuffmanDecompressor();
+    
+    /*
+    String string = "(65 ((66 67)(68 69)))";
+    char[] arrangementArray = string.toCharArray();
+    hd.constructTree(arrangementArray);
+    System.out.println(hd.root.getLeft().getItem());
+    System.out.println(hd.root.getRight().getLeft().getLeft().getItem());
+    System.out.println(hd.root.getRight().getLeft().getRight().getItem());
+    System.out.println(hd.root.getRight().getRight().getLeft().getItem());
+    System.out.println(hd.root.getRight().getRight().getRight().getItem());
+    */
+    
+    
+  }
+}

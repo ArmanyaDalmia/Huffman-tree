@@ -1,0 +1,41 @@
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class HuffmanDecompressionTest {
+  
+    public static void main(String[] args) throws IOException {
+
+        FileInputStream in = null;
+        FileOutputStream out = null;
+
+        try {
+            in = new FileInputStream("hello.txt");
+            int c;
+            String title = "";
+            String binaryTreeArrangement = "";
+
+              while ((c = in.read()) != 13) {
+                title = title + (char)c;
+                System.out.print((char)c);
+                //out.write(c);
+              }              
+              out = new FileOutputStream(title.toLowerCase());
+              
+              while ((c = in.read()) != 13) {
+                binaryTreeArrangement += (char)c;
+              }              
+              System.out.println(binaryTreeArrangement);
+              
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+        }
+        
+    }
+    
+}
